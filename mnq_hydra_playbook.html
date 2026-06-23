@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MNQ Hydra Playbook — UTC-4</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0f0f0f;color:#e0e0e0;padding:16px;font-size:14px}
+h1{font-size:18px;font-weight:600;margin-bottom:2px;color:#fff}
+.sub{font-size:13px;color:#888;margin-bottom:16px}
+.badge{display:inline-block;background:#1a1200;border:1px solid #d4a017;color:#d4a017;font-size:11px;padding:2px 8px;border-radius:20px;margin-left:8px;vertical-align:middle}
+.tab-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tb{padding:6px 14px;font-size:12px;border:1px solid #333;border-radius:8px;background:transparent;color:#888;cursor:pointer;transition:all .15s}
+.tb:hover{background:#1a1a1a;color:#ccc}
+.tb.on{background:#1a1a1a;color:#fff;border-color:#555}
+.sec{display:none}.sec.on{display:block}
+.card{background:#141414;border:1px solid #222;border-radius:12px;padding:16px;margin-bottom:12px}
+.card-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:4px}
+.card-sub{font-size:12px;color:#666;margin-bottom:14px}
+.divider{border:none;border-top:1px solid #222;margin:12px 0}
+.hl{background:#1a2030;border-left:3px solid #4a7fcb;padding:10px 14px;font-size:13px;color:#b0c4de;margin:10px 0;border-radius:0 6px 6px 0;line-height:1.6}
+.warn{background:#1f1a00;border-left:3px solid #d4a017;padding:10px 14px;font-size:13px;color:#d4a017;margin:10px 0;border-radius:0 6px 6px 0;line-height:1.6}
+.danger{background:#200a0a;border-left:3px solid #d04040;padding:10px 14px;font-size:13px;color:#e07070;margin:10px 0;border-radius:0 6px 6px 0;line-height:1.6}
+.success{background:#0a1f0a;border-left:3px solid #3a9c5a;padding:10px 14px;font-size:13px;color:#5dc87c;margin:10px 0;border-radius:0 6px 6px 0;line-height:1.6}
+.orange-box{background:#1a0e00;border-left:3px solid #e88c30;padding:10px 14px;font-size:13px;color:#e8a055;margin:10px 0;border-radius:0 6px 6px 0;line-height:1.6}
+.cell{background:#1a1a1a;border-radius:8px;padding:12px;margin-bottom:8px}
+.cell-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:6px}
+.cell-desc{font-size:12px;color:#888;line-height:1.7}
+.srow{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px}
+.snum{width:26px;height:26px;border-radius:50%;background:#1a1a1a;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;color:#ccc}
+.snum-orange{background:#1a0e00;border-color:#e88c30;color:#e8a055}
+.snum-blue{background:#0e1a2a;border-color:#4a7fcb;color:#7aaae8}
+.stitle{font-size:13px;font-weight:600;color:#e0e0e0;margin-bottom:3px}
+.sdesc{font-size:12px;color:#777;line-height:1.65}
+.trow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #1e1e1e;font-size:13px}
+.trow:last-child{border-bottom:none}
+.tc1{width:130px;color:#666;flex-shrink:0;font-size:12px}
+.tc2{flex:1;color:#e0e0e0;font-weight:500}
+.tc3{font-size:11px;text-align:right;min-width:90px}
+.chip{display:inline-flex;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.chip-green{background:#0a2a12;color:#3a9c5a;border:1px solid #1a4a20}
+.chip-red{background:#2a0a0a;color:#d04040;border:1px solid #4a1a1a}
+.chip-gray{background:#1a1a1a;color:#666;border:1px solid #333}
+.chip-amber{background:#1f1500;color:#d4a017;border:1px solid #3a2800}
+.chip-orange{background:#1a0e00;color:#e88c30;border:1px solid #3a2000}
+.tl-bar{display:flex;height:40px;border-radius:8px;overflow:hidden;gap:1px;margin:10px 0}
+.tl-seg{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;text-align:center;padding:0 4px;line-height:1.3}
+.seg-dark{background:#111;color:#444}
+.seg-blue{background:#0e1f35;color:#4a8fd4}
+.seg-coral{background:#250d0d;color:#c96060}
+.seg-amber{background:#1f1500;color:#c49a00}
+.seg-green{background:#0a1f0f;color:#3a9c5a}
+.seg-orange{background:#1a0e00;color:#e88c30}
+.ck-item{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #1e1e1e}
+.ck-item:last-child{border-bottom:none}
+.ck-box{width:18px;height:18px;border:1.5px solid #444;border-radius:4px;flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;background:transparent}
+.ck-box.checked{background:#2a6a3a;border-color:#3a9c5a}
+.ck-box.checked::after{content:'✓';font-size:11px;color:#5dc87c}
+.ck-label{font-size:13px;color:#d0d0d0;line-height:1.5}
+.ck-sub{font-size:11px;color:#666;margin-top:2px}
+.section-label{font-size:12px;font-weight:600;color:#555;margin:14px 0 8px;text-transform:uppercase;letter-spacing:0.5px}
+.section-label-orange{font-size:12px;font-weight:600;color:#e88c30;margin:14px 0 8px;text-transform:uppercase;letter-spacing:0.5px}
+.section-label-blue{font-size:12px;font-weight:600;color:#4a8fd4;margin:14px 0 8px;text-transform:uppercase;letter-spacing:0.5px}
+.model-toggle{display:flex;gap:8px;margin-bottom:14px}
+.mtb{flex:1;padding:10px;font-size:13px;font-weight:600;border-radius:10px;cursor:pointer;transition:all .15s;text-align:center;border:1px solid #333;background:#141414;color:#666}
+.mtb.on-orange{background:#1a0e00;border-color:#e88c30;color:#e8a055}
+.mtb.on-blue{background:#0e1a2a;border-color:#4a7fcb;color:#7aaae8}
+.two-col{display:flex;gap:12px;flex-wrap:wrap}
+.col-half{flex:1;min-width:140px}
+.confirm-list{font-size:12px;color:#777;line-height:1.9}
+.confirm-list span{color:#3a9c5a}
+.confirm-list span.r{color:#d04040}
+</style>
+</head>
+<body>
+
+<h1>MNQ Hydra Playbook <span class="badge">Inversion + Breaker</span></h1>
+<div class="sub">TradingView UTC-4 (ET Daylight) — Silver Bullet Macro Windows</div>
+
+<div class="tab-bar">
+  <button class="tb on" onclick="show('macro',this)">⏰ Macro Windows</button>
+  <button class="tb" onclick="show('principle',this)">📐 หลักการ</button>
+  <button class="tb" onclick="show('inversion',this)">🔄 Inversion</button>
+  <button class="tb" onclick="show('breaker',this)">💥 Breaker</button>
+  <button class="tb" onclick="show('checklist',this)">✅ Checklist</button>
+  <button class="tb" onclick="show('avoid',this)">🚫 หลีกเลี่ยง</button>
+</div>
+
+<!-- MACRO WINDOWS -->
+<div id="macro" class="sec on">
+  <div class="card">
+    <div class="card-title">Macro Windows — เวลา Entry ที่ใช้ได้</div>
+    <div class="card-sub">Hydra setup เกิดภายใน Macro Window เท่านั้น — นอก Window ไม่เข้า</div>
+
+    <div class="tl-bar">
+      <div class="tl-seg seg-dark" style="flex:4">6AM–9:30AM<br>Pre-market</div>
+      <div class="tl-seg seg-coral" style="flex:2">9:30–10AM<br>จับ move</div>
+      <div class="tl-seg seg-orange" style="flex:1.3">10:20–10:40<br>⭐ W1</div>
+      <div class="tl-seg seg-dark" style="flex:0.6">–</div>
+      <div class="tl-seg seg-orange" style="flex:1.3">10:50–11:10<br>⭐ W2</div>
+      <div class="tl-seg seg-amber" style="flex:3">11:10AM–2PM<br>หลีกเลี่ยง</div>
+      <div class="tl-seg seg-green" style="flex:2">2–3:30PM<br>PM session</div>
+    </div>
+
+    <div class="trow" style="background:#0a1a00;border-radius:6px;padding:8px;margin-bottom:4px">
+      <div class="tc1" style="color:#e88c30;font-weight:700">10:20 – 10:40 AM</div>
+      <div class="tc2" style="color:#e8a055;font-weight:700">Silver Bullet Window 1 ⭐ — Macro หลัก</div>
+      <div class="tc3"><span class="chip chip-orange">Focus</span></div>
+    </div>
+    <div class="trow" style="background:#0a1a00;border-radius:6px;padding:8px;margin-bottom:4px">
+      <div class="tc1" style="color:#e88c30;font-weight:700">10:50 – 11:10 AM</div>
+      <div class="tc2" style="color:#e8a055;font-weight:700">Silver Bullet Window 2 ⭐ — ถ้าพลาด W1</div>
+      <div class="tc3"><span class="chip chip-orange">Focus</span></div>
+    </div>
+    <div class="trow">
+      <div class="tc1">9:30 – 10:20 AM</div>
+      <div class="tc2">เตรียม — ดู Sweep Direction, Mark Liquidity</div>
+      <div class="tc3"><span class="chip chip-gray">ดูอย่างเดียว</span></div>
+    </div>
+    <div class="trow">
+      <div class="tc1">11:10 AM – 2 PM</div>
+      <div class="tc2">NY Lunch — Choppy ไม่มีทิศ false signal สูง</div>
+      <div class="tc3"><span class="chip chip-red">หลีกเลี่ยง</span></div>
+    </div>
+    <div class="trow" style="background:#0a1f0a;border-radius:6px;padding:8px">
+      <div class="tc1" style="color:#3a9c5a;font-weight:700">2:00 – 3:30 PM</div>
+      <div class="tc2" style="color:#5dc87c;font-weight:700">PM Session — Macro XX:20-XX:40, XX:50-XX:10</div>
+      <div class="tc3"><span class="chip chip-green">รอง</span></div>
+    </div>
+    <div class="trow">
+      <div class="tc1">หลัง 3:30 PM</div>
+      <div class="tc2">RTH ปิด / After hours — หยุดเทรด</div>
+      <div class="tc3"><span class="chip chip-red">หยุด</span></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="orange-box"><strong>กฎ Macro Window:</strong><br>
+      ทุก setup ต้องเกิด <strong>ภายใน</strong> 10:20-10:40 หรือ 10:50-11:10 เท่านั้น<br>
+      เห็น setup สวยแต่นอก window = ไม่เข้า รอ window ถัดไป
+    </div>
+    <div class="hl"><strong>GMT+7 แปลงง่าย:</strong><br>
+      Window 1: 10:20–10:40 ET = <strong>21:20–21:40 น. ไทย</strong><br>
+      Window 2: 10:50–11:10 ET = <strong>21:50–22:10 น. ไทย</strong>
+    </div>
+  </div>
+</div>
+
+<!-- PRINCIPLE -->
+<div id="principle" class="sec">
+  <div class="card">
+    <div class="card-title">หลักการ Hydra สำหรับ MNQ</div>
+    <div class="card-sub">Framework ก่อนเข้า Setup ทั้ง 2 Model</div>
+
+    <div class="cell">
+      <div class="cell-title">1. Top-Down Analysis (ก่อน 9:30 AM)</div>
+      <div class="cell-desc">
+        <strong style="color:#ccc">D1</strong> → Trend หลัก + Major Liquidity (BSL/SSL ขนาดใหญ่)<br>
+        <strong style="color:#ccc">H4</strong> → Intermediate Structure + Key PD Array (FVG, OB)<br>
+        <strong style="color:#ccc">H1</strong> → Session Bias + จุดที่ Sweep น่าจะเกิด<br>
+        <strong style="color:#ccc">M5</strong> → Entry Timeframe (ดู IFVG / Breaker ก่อตัว)
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-title">2. Liquidity Sweep — หัวใจของ Hydra</div>
+      <div class="cell-desc">
+        ทั้ง 2 Model ต้องมี <strong style="color:#e8a055">Liquidity Sweep ก่อนเสมอ</strong><br><br>
+        <strong style="color:#5dc87c">SSL (Sell-Side Liquidity)</strong> = แนว Low เดิม / EQL / Stops ใต้ราคา → ถูก Sweep = Bullish Setup<br>
+        <strong style="color:#e07070">BSL (Buy-Side Liquidity)</strong> = แนว High เดิม / EQH / Stops เหนือราคา → ถูก Sweep = Bearish Setup
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-title">3. ลำดับเหตุการณ์ที่ต้องเห็น</div>
+      <div class="cell-desc">
+        <span style="color:#e8a055">①</span> HTF Bias ชัด (D1/H4)<br>
+        <span style="color:#e8a055">②</span> มี Liquidity Pool ให้ Sweep<br>
+        <span style="color:#e8a055">③</span> Sweep เกิดขึ้นก่อน Macro Window<br>
+        <span style="color:#e8a055">④</span> เข้า Macro Window → หา IFVG หรือ Breaker<br>
+        <span style="color:#e8a055">⑤</span> MSS ยืนยัน (สำหรับ Inversion) หรือ Retest (สำหรับ Breaker)<br>
+        <span style="color:#e8a055">⑥</span> Entry + SL + TP
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-title">4. SMT — ใช้ MES ยืนยันเสมอ</div>
+      <div class="cell-desc">
+        เปิด 2 chart: <strong style="color:#ccc">MNQ | MES</strong><br><br>
+        <strong style="color:#5dc87c">Bullish SMT:</strong> MNQ Sweep Low ใหม่ แต่ MES ไม่ Sweep = Buy signal<br>
+        <strong style="color:#e07070">Bearish SMT:</strong> MNQ Sweep High ใหม่ แต่ MES ไม่ Sweep = Sell signal<br><br>
+        ถ้า SMT ยืนยัน = ความน่าจะเป็นสูงขึ้นมาก
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-title">5. กฎเลือก Model</div>
+      <div class="cell-desc">
+        <strong style="color:#e8a055">Inversion (IFVG)</strong><br>
+        → ใช้เมื่อ: ต้องการ Entry เร็ว, MSS ชัด, เห็น FVG ล้มเหลว<br>
+        → เหมาะกับ: ตลาดที่ Move เร็ว, Strong Reversal<br><br>
+        <strong style="color:#4a8fd4">Breaker</strong><br>
+        → ใช้เมื่อ: Liquidity Sweep ชัด, OB ล้มเหลว, คาด Aggressive Move<br>
+        → เหมาะกับ: LRLR setup, ตลาดมี Momentum ชัดเจน
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-title">6. Risk Management (HolaPrime)</div>
+      <div class="cell-desc">
+        Risk per Trade: สูงสุด <strong style="color:#ccc">2% ของ Account</strong><br>
+        Daily Max Loss: <strong style="color:#e07070">5%</strong> — หยุดทันทีที่ถึง<br>
+        Buffer หยุด: ถ้าเสียแล้ว <strong style="color:#d4a017">3%</strong> ควรหยุดก่อน<br><br>
+        SL MNQ: pts × $2 ต่อ contract<br>
+        TP1: 1:2 RR (เอาออก 50–75%)<br>
+        TP2: DOL ถัดไป หรือ 1:3 RR
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INVERSION -->
+<div id="inversion" class="sec">
+  <div class="card">
+    <div class="card-title">Model 1 — Inversion (IFVG)</div>
+    <div class="card-sub">FVG ล้มเหลว → กลายเป็น Resistance/Support ใหม่ + ยืนยัน MSS</div>
+
+    <div class="orange-box"><strong>Logic หลัก:</strong><br>
+      FVG ปกติ = ราคาดูดเข้า → แต่ถ้าราคา <strong>ทะลุผ่าน FVG ไปได้</strong> แสดงว่า FVG นั้น "ล้มเหลว" (IFVG)<br>
+      เมื่อราคากลับมา Retest IFVG = เจอ Rejection + MSS = <strong>Best Reversal Signal</strong>
+    </div>
+
+    <div class="section-label-orange">ก่อน Macro Window — เตรียม</div>
+
+    <div class="srow">
+      <div class="snum snum-orange">1</div>
+      <div>
+        <div class="stitle">Confirm HTF Bias</div>
+        <div class="sdesc">D1/H4 ชี้ทิศชัด — Bullish หรือ Bearish? ถ้าไม่ชัด = skip วันนี้</div>
+      </div>
+    </div>
+    <div class="srow">
+      <div class="snum snum-orange">2</div>
+      <div>
+        <div class="stitle">Mark Liquidity Pool (BSL / SSL)</div>
+        <div class="sdesc">หาแนว High/Low เดิมที่ยังไม่ถูก Sweep บน H1/H4 — นี่คือเป้าหมายที่ราคาจะวิ่งไป Sweep ก่อน</div>
+      </div>
+    </div>
+    <div class="srow">
+      <div class="snum snum-orange">3</div>
+      <div>
+        <div class="stitle">Mark FVG บน H1/M15 ที่น่าจะ Fail</div>
+        <div class="sdesc">FVG ที่อยู่ใกล้ Liquidity Pool คือตัวเลือกที่ดี — ถ้าราคา Sweep Liquidity แล้วทะลุ FVG นั้น = IFVG เกิด</div>
+      </div>
+    </div>
+
+    <div class="section-label-orange">ใน Macro Window (10:20-10:40 / 10:50-11:10)</div>
+
+    <div class="srow">
+      <div class="snum snum-orange">4</div>
+      <div>
+        <div class="stitle">Liquidity Sweep เกิดขึ้นแล้ว</div>
+        <div class="sdesc">
+          <span style="color:#5dc87c">Bullish:</span> SSL ถูก Sweep (Low เดิมถูกทะลุ) → รอ Buy<br>
+          <span style="color:#e07070">Bearish:</span> BSL ถูก Sweep (High เดิมถูกทะลุ) → รอ Sell
+        </div>
+      </div>
+    </div>
+    <div class="srow">
+      <div class="snum snum-orange">5</div>
+      <div>
+        <div class="stitle">FVG ถูกทะลุ → IFVG ก่อตัว</div>
+        <div class="sdesc">ราคาทะลุผ่าน FVG ที่ mark ไว้แล้ว = FVG นั้นกลายเป็น IFVG — zone ที่ราคาจะกลับมา Reject</div>
+      </div>
+    </div>
+    <div class="srow">
+      <div class="snum snum-orange">6</div>
+      <div>
+        <div class="stitle">รอราคา Retest IFVG</div>
+        <div class="sdesc">ราคากลับมาสัมผัส IFVG zone — ดูบน M5/M1 ว่ามี Rejection candle หรือ OB เล็กก่อตัวหรือไม่</div>
+      </div>
+    </div>
+    <div class="srow">
+      <div class="snum snum-orange">7</div>
+      <div>
+        <div class="stitle">MSS ยืนยันบน M5</div>
+        <div class="sdesc">
+          เห็น Market Structure Shift ชัดเจน — แท่งที่ทะลุ Swing High/Low ก่อนหน้า<br>
+          <span style="color:#e8a055">MSS ชัด = IFVG แข็งแกร่งมาก</span>
+        </div>
+      </div>
+    </div>
+    <div class="srow">
+      <div class="snum snum-orange">8</div>
+      <div>
+        <div class="stitle">Entry + SL + TP</div>
+        <div class="sdesc">
+          Entry: ที่ IFVG zone (Limit order) หรือ Market หลัง MSS<br>
+          SL: เกิน IFVG zone 2–3 ticks (ถ้า Bullish = ใต้ Low ของ IFVG)<br>
+          TP1: 1:2 RR | TP2: Opposite Liquidity Pool
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- SVG Diagram Inversion -->
+    <div class="section-label-orange">Diagram — Bullish Inversion</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+      <svg width="160" height="300" viewBox="0 0 160 300">
+        <!-- price drops, sweeps SSL, hits FVG which fails = IFVG, then retest IFVG = entry -->
+        <!-- SSL line -->
+        <line x1="10" y1="220" x2="150" y2="220" stroke="#e07070" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="2" y="216" font-size="9" fill="#e07070" font-family="sans-serif">SSL</text>
+        <!-- FVG zone (becomes IFVG) -->
+        <rect x="30" y="180" width="100" height="30" rx="2" fill="#1a2030" stroke="#4a7fcb" stroke-width="1" opacity="0.7"/>
+        <text x="80" y="199" font-size="9" fill="#4a7fcb" font-family="sans-serif" text-anchor="middle">IFVG zone</text>
+        <!-- price path: down sweep SSL, back up through FVG, retest IFVG, then up -->
+        <polyline points="20,60 55,160 70,230 85,175 105,185 125,100 150,30"
+          fill="none" stroke="#5dc87c" stroke-width="2"/>
+        <!-- sweep annotation -->
+        <text x="55" y="248" font-size="9" fill="#e07070" font-family="sans-serif" text-anchor="middle">Sweep SSL</text>
+        <!-- retest annotation -->
+        <text x="105" y="172" font-size="9" fill="#e8a055" font-family="sans-serif" text-anchor="middle">Retest</text>
+        <!-- MSS annotation -->
+        <text x="135" y="90" font-size="9" fill="#5dc87c" font-family="sans-serif">MSS↑</text>
+        <!-- entry arrow -->
+        <line x1="105" y1="185" x2="105" y2="155" stroke="#5dc87c" stroke-width="1.5" marker-end="url(#arrowUp)"/>
+        <defs>
+          <marker id="arrowUp" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+            <path d="M1 8L5 2L9 8" fill="none" stroke="#5dc87c" stroke-width="1.5"/>
+          </marker>
+        </defs>
+        <text x="108" y="165" font-size="9" fill="#5dc87c" font-family="sans-serif">Entry</text>
+      </svg>
+      <div style="flex:1;min-width:150px">
+        <div style="background:#1a0e00;border-radius:8px;padding:10px;border:1px solid #3a2000;margin-bottom:10px">
+          <div style="font-size:12px;font-weight:600;color:#e8a055;margin-bottom:6px">เงื่อนไขครบ = Entry ได้</div>
+          <div class="confirm-list">
+            <span>✓</span> Bias Bullish (D1/H4)<br>
+            <span>✓</span> SSL ถูก Sweep แล้ว<br>
+            <span>✓</span> FVG ถูกทะลุ = IFVG<br>
+            <span>✓</span> ราคา Retest IFVG<br>
+            <span>✓</span> MSS บน M5 ชัด<br>
+            <span>✓</span> อยู่ใน Macro Window<br>
+            <span>✓</span> SMT (MES diverge) ✓ optional
+          </div>
+        </div>
+        <div class="danger" style="margin:0">
+          <strong class="r">✗ ไม่เข้าถ้า:</strong><br>
+          FVG ยังไม่ถูกทะลุ<br>
+          ไม่มี MSS ยืนยัน<br>
+          นอก Macro Window
+        </div>
+      </div>
+    </div>
+
+    <div class="success">จุดเด่น: Price Delivery เร็ว — เหมาะกับ Strong Reversal Day บน MNQ</div>
+  </div>
+</div>
+
+<!-- BREAKER -->
+<div id="breaker" class="sec">
+  <div class="card">
+    <div class="card-title">Model 2 — Breaker Block</div>
+    <div class="card-sub">OB ล้มเหลวหลัง Liquidity Sweep → กลายเป็น Breaker ที่มีแรง Rejection สูง</div>
+
+    <div style="background:#0e1a2a;border-left:3px solid #4a7fcb;padding:10px 14px;font-size:13px;color:#b0c4de;margin:10px 0;border-radius:0 6px 6px 0;line-height:1.6">
+      <strong>Logic หลัก:</strong><br>
+      Order Block (OB) ปกติ = แนว Support/Resistance → แต่ถ้าราคา <strong>Sweep Liquidity แล้วทะลุ OB ไป</strong><br>
+      OB นั้น "ล้มเหลว" → กลายเป็น <strong>Breaker Block</strong> ที่ราคาจะกลับมา Retest แล้ว Reject แรงมาก
+    </div>
+
+    <div class="model-toggle">
+      <button class="mtb on-green" id="mb1" onclick="showBreaker('bull','mb1','mb2')" style="background:#0a1f0a;border-color:#3a9c5a;color:#5dc87c">
+        📈 Bullish Breaker (Buy)
+      </button>
+      <button class="mtb" id="mb2" onclick="showBreaker('bear','mb2','mb1')" style="border-color:#333;color:#666">
+        📉 Bearish Breaker (Sell)
+      </button>
+    </div>
+
+    <!-- Bullish Breaker -->
+    <div id="bk-bull">
+      <div class="section-label-blue">Bullish Breaker — Step by Step</div>
+      <div class="srow">
+        <div class="snum snum-blue">1</div>
+        <div>
+          <div class="stitle">D1/H4 Bias = Bullish</div>
+          <div class="sdesc">ตลาดอยู่ในโหมด Bullish — DOL อยู่เหนือราคา (BSL ยังไม่ถูก Sweep)</div>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="snum snum-blue">2</div>
+        <div>
+          <div class="stitle">Mark OB ขาลง (Bearish OB) บน H1/M15</div>
+          <div class="sdesc">แท่งขาขึ้นก่อน Impulse ลง = Bearish OB — จุดที่ถ้าราคาทะลุขึ้นได้ = Breaker ก่อตัว</div>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="snum snum-blue">3</div>
+        <div>
+          <div class="stitle">SSL ถูก Sweep (Low เดิมถูกทะลุ)</div>
+          <div class="sdesc">ราคาดิ่งลง Sweep SSL ก่อน Macro Window — นี่คือการ "จ่ายเงิน" ให้ Smart Money ก่อนวิ่งขึ้น</div>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="snum snum-blue">4</div>
+        <div>
+          <div class="stitle">ราคาทะลุ Bearish OB ขึ้นมา = Breaker ก่อตัว</div>
+          <div class="sdesc">OB เดิมที่เป็นแนวต้านถูกทะลุ → กลายเป็น <strong style="color:#7aaae8">Bullish Breaker</strong> (แนวรับใหม่)</div>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="snum snum-blue">5</div>
+        <div>
+          <div class="stitle">ใน Macro Window — รอ Retest Breaker</div>
+          <div class="sdesc">ราคาวิ่งขึ้นแล้วกลับลงมา Retest Bullish Breaker zone — ดู Rejection บน M5</div>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="snum snum-blue">6</div>
+        <div>
+          <div class="stitle">Entry ที่ Breaker + SL + TP</div>
+          <div class="sdesc">
+            Entry: Limit ที่ Breaker zone (50% ของ zone)<br>
+            SL: ใต้ Low ของ Breaker zone + 2-3 ticks<br>
+            TP1: 1:2 RR | TP2: BSL (Buy-Side Liquidity) ถัดไป
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-top:12px">
+        <svg width="160" height="280" viewBox="0 0 160 280">
+          <!-- SSL line -->
+          <line x1="10" y1="230" x2="150" y2="230" stroke="#e07070" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="2" y="226" font-size="9" fill="#e07070" font-family="sans-serif">SSL</text>
+          <!-- Bearish OB / Bullish Breaker zone -->
+          <rect x="20" y="155" width="120" height="35" rx="2" fill="#0e1a2a" stroke="#4a7fcb" stroke-width="1.5"/>
+          <text x="80" y="177" font-size="9" fill="#7aaae8" font-family="sans-serif" text-anchor="middle">Bullish Breaker</text>
+          <!-- price: starts up left, drops through OB, sweeps SSL, comes back up through Breaker, retest, then rockets -->
+          <polyline points="15,100 40,160 60,240 80,160 100,170 130,50 150,20"
+            fill="none" stroke="#5dc87c" stroke-width="2"/>
+          <text x="60" y="255" font-size="9" fill="#e07070" font-family="sans-serif" text-anchor="middle">Sweep SSL</text>
+          <text x="100" y="190" font-size="9" fill="#7aaae8" font-family="sans-serif" text-anchor="middle">Retest</text>
+          <!-- entry arrow -->
+          <defs>
+            <marker id="arrowUp2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+              <path d="M1 8L5 2L9 8" fill="none" stroke="#5dc87c" stroke-width="1.5"/>
+            </marker>
+          </defs>
+          <line x1="100" y1="170" x2="110" y2="140" stroke="#5dc87c" stroke-width="1.5" marker-end="url(#arrowUp2)"/>
+          <text x="112" y="150" font-size="9" fill="#5dc87c" font-family="sans-serif">Buy</text>
+        </svg>
+        <div style="flex:1;min-width:150px">
+          <div style="background:#0e1a2a;border-radius:8px;padding:10px;border:1px solid #1a3a5a;margin-bottom:10px">
+            <div style="font-size:12px;font-weight:600;color:#7aaae8;margin-bottom:6px">Bullish Breaker Checklist</div>
+            <div class="confirm-list">
+              <span>✓</span> Bias Bullish (D1/H4)<br>
+              <span>✓</span> SSL ถูก Sweep<br>
+              <span>✓</span> Bearish OB ถูกทะลุ = Breaker<br>
+              <span>✓</span> Retest Breaker zone<br>
+              <span>✓</span> Rejection บน M5<br>
+              <span>✓</span> อยู่ใน Macro Window<br>
+              <span>✓</span> SMT ยืนยัน optional
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bearish Breaker -->
+    <div id="bk-bear" style="display:none">
+      <div class="section-label" style="color:#e07070">Bearish Breaker — Step by Step</div>
+      <div class="srow">
+        <div class="snum" style="background:#200a0a;border-color:#d04040;color:#e07070">1</div>
+        <div>
+          <div class="stitle">D1/H4 Bias = Bearish</div>
+          <div class="sdesc">ตลาดอยู่ในโหมด Bearish — DOL อยู่ใต้ราคา (SSL ยังไม่ถูก Sweep)</div>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="snum" style="background:#200a0a;border-color:#d04040;color:#e07070">2</div>
+        <div>
+          <div class="stitle">Mark OB ขาขึ้น (Bullish OB) บน H1/M15</div>
+          <div class="sdesc">แท่งขาลงก่อน Impulse ขึ้น = Bullish OB — จุดที่ถ้าราคาทะลุลงได้ = Bearish Breaker ก่อตัว</div>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="snum" style="background:#200a0a;border-color:#d04040;color:#e07070">3</div>
+        <div>
+          <div class="stitle">BSL ถูก Sweep (High เดิมถูกทะลุ)</div>
+          <div class="sdesc">ราคาพุ่งขึ้น Sweep BSL ก่อน Macro Window — Smart Money ล้าง Stop ของฝั่ง Long</div>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="snum" style="background:#200a0a;border-color:#d04040;color:#e07070">4</div>
+        <div>
+          <div class="stitle">ราคาทะลุ Bullish OB ลงมา = Breaker ก่อตัว</div>
+          <div class="sdesc">OB เดิมที่เป็นแนวรับถูกทะลุ → กลายเป็น <strong style="color:#e07070">Bearish Breaker</strong> (แนวต้านใหม่)</div>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="snum" style="background:#200a0a;border-color:#d04040;color:#e07070">5</div>
+        <div>
+          <div class="stitle">ใน Macro Window — รอ Retest Breaker</div>
+          <div class="sdesc">ราคาดิ่งลงแล้วกลับขึ้นมา Retest Bearish Breaker zone — ดู Rejection บน M5</div>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="snum" style="background:#200a0a;border-color:#d04040;color:#e07070">6</div>
+        <div>
+          <div class="stitle">Entry ที่ Breaker + SL + TP</div>
+          <div class="sdesc">
+            Entry: Limit ที่ Breaker zone (50% ของ zone)<br>
+            SL: เหนือ High ของ Breaker zone + 2-3 ticks<br>
+            TP1: 1:2 RR | TP2: SSL (Sell-Side Liquidity) ถัดไป
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-top:12px">
+        <svg width="160" height="280" viewBox="0 0 160 280">
+          <!-- BSL line -->
+          <line x1="10" y1="50" x2="150" y2="50" stroke="#5dc87c" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="2" y="46" font-size="9" fill="#5dc87c" font-family="sans-serif">BSL</text>
+          <!-- Bearish Breaker zone -->
+          <rect x="20" y="90" width="120" height="35" rx="2" fill="#200a0a" stroke="#d04040" stroke-width="1.5"/>
+          <text x="80" y="112" font-size="9" fill="#e07070" font-family="sans-serif" text-anchor="middle">Bearish Breaker</text>
+          <!-- price: up, sweeps BSL, drops through OB = Breaker, bounce retest, then dumps -->
+          <polyline points="15,180 40,120 60,40 80,120 100,105 130,220 150,260"
+            fill="none" stroke="#e07070" stroke-width="2"/>
+          <text x="60" y="35" font-size="9" fill="#5dc87c" font-family="sans-serif" text-anchor="middle">Sweep BSL</text>
+          <text x="100" y="95" font-size="9" fill="#e07070" font-family="sans-serif" text-anchor="middle">Retest</text>
+          <defs>
+            <marker id="arrowDn" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+              <path d="M1 2L5 8L9 2" fill="none" stroke="#e07070" stroke-width="1.5"/>
+            </marker>
+          </defs>
+          <line x1="100" y1="105" x2="110" y2="135" stroke="#e07070" stroke-width="1.5" marker-end="url(#arrowDn)"/>
+          <text x="112" y="130" font-size="9" fill="#e07070" font-family="sans-serif">Sell</text>
+        </svg>
+        <div style="flex:1;min-width:150px">
+          <div style="background:#200a0a;border-radius:8px;padding:10px;border:1px solid #4a1a1a;margin-bottom:10px">
+            <div style="font-size:12px;font-weight:600;color:#e07070;margin-bottom:6px">Bearish Breaker Checklist</div>
+            <div class="confirm-list">
+              <span>✓</span> Bias Bearish (D1/H4)<br>
+              <span>✓</span> BSL ถูก Sweep<br>
+              <span>✓</span> Bullish OB ถูกทะลุ = Breaker<br>
+              <span>✓</span> Retest Breaker zone<br>
+              <span>✓</span> Rejection บน M5<br>
+              <span>✓</span> อยู่ใน Macro Window<br>
+              <span>✓</span> SMT ยืนยัน optional
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div style="background:#0e1a2a;border-left:3px solid #4a7fcb;padding:10px 14px;font-size:13px;color:#b0c4de;margin:10px 0;border-radius:0 6px 6px 0;line-height:1.6">
+      <strong>จุดเด่น Breaker:</strong> เหมาะกับ LRLR setup (ความเสี่ยงต่ำ RR สูง) เพราะ SL แคบ แต่ Move หลัง Retest มักแรงมาก
+    </div>
+  </div>
+</div>
+
+<!-- CHECKLIST -->
+<div id="checklist" class="sec">
+  <div class="card">
+    <div class="card-title">Pre-Trade Checklist — Hydra Setup</div>
+    <div class="card-sub">ติ๊กครบทุกข้อก่อนเข้า — ขาดข้อไหน = ไม่เข้า</div>
+
+    <div class="section-label">ก่อน 9:30 AM — เตรียม</div>
+    <div class="ck-item"><div class="ck-box" onclick="tick(this)"></div><div><div class="ck-label">D1/H4 Bias ชัด — Bullish หรือ Bearish</div><div class="ck-sub">ถ้าตอบไม่ได้ = skip วันนี้</div></div></div>
+    <div class="ck-item"><div class="ck-box" onclick="tick(this)"></div><div><div class="ck-label">Mark Liquidity Pool (BSL / SSL) บน H1/H4 แล้ว</div><div class="ck-sub">High/Low เดิมที่ยังไม่ถูก Sweep</div></div></div>
+    <div class="ck-item"><div class="ck-box" onclick="tick(this)"></div><div><div class="ck-label">Mark FVG หรือ OB ที่อาจ Fail ได้</div><div class="ck-sub">FVG/OB ที่อยู่ใกล้ Liquidity Pool</div></div></div>
+    <div class="ck-item"><div class="ck-box" onclick="tick(this)"></div><div><div class="ck-label">เปิด MES chart คู่กับ MNQ (SMT ready)</div><div class="ck-sub">Layout 2 cols: MNQ | MES</div></div></div>
+    <div class="ck-item"><div class="ck-box" onclick="tick(this)"></div><div><div class="ck-label">เช็ค High Impact News วันนี้</div><div class="ck-sub">FOMC, CPI, NFP — ถ้ามีให้ระวังเป็นพิเศษ</div></div></div>
+
+    <div class="section-label">9:30–10:20 AM — จับ Direction</div>
+    <div class="ck-item"><div class="ck-box" onclick="tick(this)"></div><div><div class="ck-label">NY Open — ราคาวิ่งไปทิศไหนก่อน?</div><div class="ck-sub">บันทึก: วิ่งขึ้นก่อน (เตรียม Sell) / ลงก่อน (เตรียม Buy)</div></div></div>
+    <div class="ck-item"><div class="ck-box" onclick="tick(this)"></div><div><div class="ck-label">Liquidity Sweep เกิดขึ้นแล้ว (SSL หรือ BSL)</div><div class="ck-sub">ถ้ายังไม่ Sweep = ยังไม่มี Setup</div></div></div>
+    <div class="ck-item"><div class="ck-box" onclick="tick(this)"></div><div><div class="ck-label">เลือก Model แล้ว — Inversion หรือ Breaker</div><div class="ck-sub">FVG ล้มเหลว = Inversion / OB ล้มเหลว = Breaker</div></div></div>
+
+    <div class="section-label" style="color:#e88c30">10:20–10:40 AM — Macro Window 1</div>
+    <div class="ck-item"><div class="ck-box" onclick="tick(this)"></div><div><div class="ck-label">IFVG หรือ Breaker ก่อตัวชัดเจนแล้ว</div><div class="ck-sub">เห็น zone ที่จะ Retest ได้</div></div></div>
+    <div class="ck-item"><div class="ck-box" onclick="tick(this)"></div><div><div class="ck-label">ราคา Retest IFVG/Breaker แล้ว</div><div class="ck-sub">ไม่เข้าก่อน Retest</div></div></div>
+    <div class="ck-item"><div class="ck-box" onclick="tick(this)"></div><div><div class="ck-label">M5 ยืนยัน Rejection (MSS หรือ OB เล็ก)</div><div class="ck-sub">เห็น Reaction ชัดบน M5</div></div></div>
+    <div class="ck-item"><div class="ck-box" onclick="tick(this)"></div><div><div class="ck-label">คำนวณ SL เป็น $ แล้ว (pts × $2)</div><div class="ck-sub">รู้ Max Loss ก่อนกด Buy/Sell</div></div></div>
+    <div class="ck-item"><div class="ck-box" onclick="tick(this)"></div><div><div class="ck-label">Daily Loss ยังไม่ถึง 3%</div><div class="ck-sub">ถ้าเสียแล้ว 3% = หยุด ไม่เข้าอีก</div></div></div>
+
+    <div style="margin-top:14px;display:flex;gap:8px">
+      <button class="tb" onclick="resetAll()">Reset ทั้งหมด</button>
+    </div>
+  </div>
+</div>
+
+<!-- AVOID -->
+<div id="avoid" class="sec">
+  <div class="card">
+    <div class="card-title" style="color:#e07070">สิ่งที่ต้องหลีกเลี่ยง — Hydra MNQ</div>
+    <div class="card-sub">MNQ เคลื่อนเร็วและลึก — ผิดพลาดครั้งเดียวเสียหายมาก</div>
+
+    <div class="danger"><strong>❌ เข้านอก Macro Window</strong><br>Setup สวยแค่ไหนก็ตาม ถ้าไม่อยู่ใน 10:20-10:40 หรือ 10:50-11:10 = ไม่เข้า เด็ดขาด</div>
+    <div class="danger"><strong>❌ เข้าก่อน Liquidity Sweep เกิด</strong><br>ไม่มี Sweep = ไม่มี Setup — เห็น IFVG หรือ Breaker แต่ยังไม่ Sweep Liquidity = รอก่อน</div>
+    <div class="danger"><strong>❌ เข้า Inversion โดยไม่มี MSS</strong><br>IFVG ที่ไม่มี MSS ยืนยัน = False Signal สูง — ต้องเห็น Structure Shift บน M5 ก่อน</div>
+    <div class="danger"><strong>❌ เทรดช่วง 11:10AM–2PM</strong><br>NY Lunch — Choppy, ไม่มีทิศ, IFVG และ Breaker ที่เกิดช่วงนี้มักเป็น Fake Setup</div>
+    <div class="warn"><strong>⚠️ Bias ขัดแย้งกับ Setup</strong><br>D1 Bearish แต่เห็น Bullish Setup = ความน่าจะเป็นต่ำมาก — อย่า Force เข้าทวน Bias</div>
+    <div class="warn"><strong>⚠️ วัน High Impact News</strong><br>FOMC, CPI, NFP — ตลาดวิ่งด้วย News ไม่ใช่ ICT Logic รอให้ผ่าน Spike ใหญ่ก่อนค่อยดู Setup</div>
+    <div class="warn"><strong>⚠️ ดู MNQ โดยไม่เปรียบ MES</strong><br>SMT เป็น filter สำคัญ — ดูแค่ MNQ อย่างเดียว โอกาส False Signal สูงขึ้น</div>
+    <div class="warn"><strong>⚠️ เข้า 2 Trade ในวันเดียวถ้า Trade แรกเสีย</strong><br>1 Setup ต่อวัน — ถ้าเสียแล้ว Stop หาสาเหตุ อย่า Revenge Trade บน MNQ</div>
+    <div class="hl"><strong>กฎ Consistency (HolaPrime):</strong><br>Daily Loss ≤ 5% — ถ้าเสีย 3% แล้ว ควรหยุดก่อนเพื่อ buffer Consistency Rule ไว้</div>
+  </div>
+</div>
+
+<script>
+function show(id,btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+function showBreaker(type,b1,b2){
+  var bull=document.getElementById('bk-bull');
+  var bear=document.getElementById('bk-bear');
+  var btn1=document.getElementById(b1);
+  var btn2=document.getElementById(b2);
+  if(type==='bull'){
+    bull.style.display='block';
+    bear.style.display='none';
+    btn1.style.background='#0a1f0a';
+    btn1.style.borderColor='#3a9c5a';
+    btn1.style.color='#5dc87c';
+    btn2.style.background='#141414';
+    btn2.style.borderColor='#333';
+    btn2.style.color='#666';
+  } else {
+    bull.style.display='none';
+    bear.style.display='block';
+    btn2.style.background='#200a0a';
+    btn2.style.borderColor='#d04040';
+    btn2.style.color='#e07070';
+    btn1.style.background='#141414';
+    btn1.style.borderColor='#333';
+    btn1.style.color='#666';
+  }
+}
+function tick(el){
+  el.classList.toggle('checked');
+}
+function resetAll(){
+  document.querySelectorAll('.ck-box').forEach(b=>b.classList.remove('checked'));
+}
+</script>
+</body>
+</html>
